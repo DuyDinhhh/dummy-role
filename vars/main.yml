@@ -1,0 +1,2 @@
+---
+default_ipv4_address: ansible_facts['defaul_ipv4']['address']

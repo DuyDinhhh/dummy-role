@@ -1,0 +1,111 @@
+--- 
+
+- name: Update system package list for Debian 
+
+  apt: 
+
+    update_cache: yes 
+
+  ignore_errors: yes 
+
+- name: Install required dependencies 
+
+  apt: 
+
+    name: "{{item}}" 
+
+    state: present 
+
+  loop: 
+
+      - curl 
+
+      - openssh-server 
+
+      - ca-certificates 
+
+      - tzdata 
+
+      - perl 
+
+      - postfix 
+
+  
+
+- name: (GITLAB-CE) Check if GitLab-CE is already installed 
+
+  stat: 
+
+    path: /etc/gitlab 
+
+  register: gitlab 
+
+  
+
+- name: Add repository 
+
+  shell: curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash 
+
+  
+
+- name: Install gitlab-ce 
+
+  apt: 
+
+    name: gitlab-ce 
+
+    state: present 
+
+  when: not gitlab.stat.exists 
+
+- name: Enable firewall 
+
+  ufw: 
+
+    state: enabled 
+
+    policy: allow 
+
+  
+
+- name: Allow HTTP traffic 
+
+  ufw: 
+
+    rule: allow 
+
+    port: 80 
+
+  
+
+  
+
+- name: Allow HTTPS traffic 
+
+  ufw: 
+
+    rule: allow 
+
+    port: 443 
+
+  
+
+- name: Allow SSH traffic 
+
+  ufw: 
+
+    rule: allow 
+
+    name: 'OpenSSH' 
+
+- name: Edit gitlab file 
+
+  template: 
+
+    src: gitlab.rb.j2 
+
+    dest: /etc/gitlab/gitlab.rb 
+
+  notify: reconfigure_gitlab 
+
+ 

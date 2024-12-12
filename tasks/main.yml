@@ -1,0 +1,8 @@
+---
+- name: Install gitlab for Debian
+  include_tasks: debian.yml
+  when: ansible_facts['os_family']=="Debian" and ansible_facts['hostname']=="ubuntu04"
+
+- name: Install gitlab for Redhat
+  include_tasks: redhat.yml
+  when: ansible_facts['os_family']=="Redhat" and ansible_facts['hostname']=="centos01"
